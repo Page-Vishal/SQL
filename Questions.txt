@@ -1,0 +1,337 @@
+	Question 1
+
+Retrieve the CustomerName and Country from the Customers table for those customers who have placed an order in the year 1997 using a subquery.
+
+Display the CustomerName, ContactName, and Country for customers located in either 'Germany', 'France', or 'UK', but exclude those whose ContactName ends with the letter 'a'.
+
+Retrieve all columns from the Customers table and sort the results by Country (ascending), then by City (descending), and finally by CustomerName (ascending).
+
+Create two queries:
+
+A self join use a hypothetical session_employees table to find pairs of employees (or manager-employee relationships if a manager_id exists).
+
+A cross join.
+
+
+Question 2
+
+Problem: "Retrieve the names and emails of customers who have placed orders above the average order total."
+
+Using the Tables:
+
+session_customers:
+Contains the full_name and email for each customer.
+
+session_orders:
+Contains the order_total for each order and links back to the customer via customer_id.
+
+Key Steps for the Assignment:
+
+Calculate the Average Order Total:
+Use the session_orders table to compute the average of order_total.
+
+Filter Orders Above Average:
+Identify orders that have an order_total greater than this calculated average.
+
+Link Orders to Customers:
+Using either a subquery or a join, link the qualifying orders back to the corresponding customers in the session_customers table.
+
+Question 3
+
+Using the existing table session_orders (and optionally session_customers), write SQL queries that demonstrate the following window function techniques:
+
+Ranking Orders:
+Calculate the rank of each order based on order_total in descending order for each customer.
+
+Cumulative Sum:
+Compute the cumulative sum of order_total for each customer, ordered by order_date.
+
+Moving Average:
+Calculate the moving average of order_total for each customer using a sliding window that includes the current row and the previous two orders.
+
+
+Question 4
+
+Table Schema Details:
+session_orders
+
+order_id (SERIAL PRIMARY KEY): Unique identifier for each order.
+
+customer_id (INT NOT NULL): References a customer from the session_customers table.
+
+order_date (DATE DEFAULT CURRENT_DATE): Date when the order was placed.
+
+order_total (NUMERIC(10,2) NOT NULL): Total value of the order.
+
+status (VARCHAR(20)): Must be one of 'pending', 'completed', or 'expired'.
+
+Part A: Stored Procedure
+
+Objective:
+Write a stored procedure that takes an order_id and a new status as parameters, and updates the corresponding order’s status in session_orders.
+
+Instructions:
+
+Create a stored procedure named session_update_order_status.
+
+It should accept two parameters: p_order_id (INT) and p_new_status (VARCHAR).
+
+Use the procedure to update the status column in session_orders.
+
+Part B: SQL Function for Discounts
+
+Objective:
+Write a function that calculates and returns a discount percentage based on order_total.
+
+Business Rules:
+
+If order_total is above 200, return a 10% discount.
+
+Otherwise, return a 5% discount.
+
+Instructions:
+
+Create a function named session_calculate_discount.
+
+The function should accept p_order_total (NUMERIC) and return NUMERIC representing the discount percentage.
+
+
+Question 5
+
+A global e-commerce company tracks millions of financial transactions daily. Each transaction is stored in a table named transactions with the following structure:
+
+
+transactions(
+    transaction_id UUID,
+    user_id UUID,
+    amount DECIMAL(10, 2),
+    currency VARCHAR(3),
+    transaction_time TIMESTAMP,
+    payment_method VARCHAR(50),
+    location VARCHAR(100),
+    device_id UUID,
+    is_fraud BOOLEAN
+)
+You are tasked to design and optimize a fraud detection system using SQL Views and Materialized Views to identify suspicious transaction patterns in near real-time.
+
+You must do the following:
+
+Part A: SQL View Design
+Create a standard SQL view named recent_high_risk_activity that:
+
+Filters transactions from the last 12 hours.
+
+Flags transactions where:
+
+The same user_id or device_id has more than 5 transactions within 30 minutes.
+
+The amount is greater than $5,000 or from a blacklisted location (location IN ('Nigeria', 'North Korea', 'Russia', 'Iran')).
+
+The payment method is one of the high-risk types: 'Crypto Wallet', 'Prepaid Card'.
+
+
+Part B: Materialized View Design
+Design a materialized view named fraud_summary_mv that:
+
+Refreshes every 10 minutes.
+
+Aggregates the number of suspicious transactions per user (user_id) and device (device_id) based on the recent_high_risk_activity view.
+
+Includes a column suspicion_score computed as:
+
+
+suspicion_score = (COUNT(*) * 0.5) + 
+                  (SUM(CASE WHEN amount > 10000 THEN 1 ELSE 0 END) * 1.5) + 
+                  (SUM(CASE WHEN location IN ('Nigeria', 'North Korea', 'Russia', 'Iran') THEN 2 ELSE 0 END))
+
+Part C: Challenge Question
+Using only SQL, write a query that:
+
+Uses the fraud_summary_mv and recent_high_risk_activity to detect accounts likely engaging in fraudulent behavior.
+
+Flags those with a suspicion_score > 10 AND at least one prior transaction where is_fraud = true in the last 30 days.
+
+Ranks them by total suspicious transactions in descending order.
+
+
+
+Question 6
+
+beautifulsoup assignment site to scrap- https://quotes.toscrape.com/
+
+Author Profile Extraction
+
+For each quote you already collected, follow its author’s link (e.g. the href from block.find("a"))
+
+On each author page, scrape birth date and birth location (both are in <span class="author-born-date"> and <span class="author-born-location">).
+
+Append these two new fields to your existing CSV of quotes.
+
+Quote-Length Analysis
+
+Using your list of quotes, compute the length (in characters) of each quote text.
+
+Add a new CSV column length.
+
+Report which quote is the shortest and which is the longest.
+
+Question 7
+
+Multi-Session Anomaly 
+You are given the following situation in PostgreSQL:
+- Session A:  
+  BEGIN;
+  UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+- Session B:  
+  BEGIN;
+  UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+  COMMIT;
+- Session A (continued):  
+  COMMIT;
+
+Then two more sessions perform a transfer in the opposite direction.
+
+Question
+- Simulate Lost Update or Write Skew anomalies.
+- What isolation level prevents this behavior?
+- Demonstrate with SERIALIZABLE, why it might fail or block.
+
+Question 8
+
+Savepoint Rollback Depth Puzzle
+You have a transaction:
+BEGIN;
+SAVEPOINT a;
+-- insert A
+SAVEPOINT b;
+-- insert B
+ROLLBACK TO a;
+-- insert C
+COMMIT;
+
+Question:
+
+- What rows are committed finally?
+- What happens to SAVEPOINT b after rollback to a?
+- Can you create SAVEPOINT b again after rollback to a?
+
+Question 8
+
+Deadlock Simulation & Detection
+
+Create a script to simulate a deadlock between two transactions using UPDATE.
+
+Question:
+- Show step-by-step lock acquisition.
+- How does the database resolve deadlock?
+- What factors influence which transaction is killed?
+
+Question 9
+
+Phantom Read Detection via Repeatable Read
+
+BEGIN TRANSACTION;
+SELECT COUNT(*) FROM orders WHERE status = 'pending';
+-- another session inserts 10 'pending' orders here
+SELECT COUNT(*) FROM orders WHERE status = 'pending';
+COMMIT;
+
+Question:
+- Which isolation level ensures both SELECTs return same count?
+- Reproduce a phantom read.
+- Which isolation levels prevent this?
+
+Question 10
+
+Time Travel & Rollback Trap
+
+BEGIN;
+UPDATE employees SET salary = salary * 1.10 WHERE department = 'Sales';
+SAVEPOINT before_bonus;
+UPDATE employees SET bonus = 500 WHERE department = 'Sales';
+ROLLBACK TO before_bonus;
+UPDATE employees SET bonus = 1000 WHERE department = 'Sales';
+COMMIT;
+
+Question:
+- Final state of the data?
+- Can you rollback the salary increase?
+- Why or why not?
+
+Question 11
+
+Non-repeatable Reads with Read Committed
+
+Session A:
+BEGIN;
+SELECT salary FROM employees WHERE id = 1;
+-- wait
+SELECT salary FROM employees WHERE id = 1;
+COMMIT;
+
+Session B (between A's queries):
+BEGIN;
+UPDATE employees SET salary = salary + 500 WHERE id = 1;
+COMMIT;
+
+Question:
+- Will Session A see different values under READ COMMITTED?
+- Will REPEATABLE READ fix this?
+- Risks in financial applications?
+
+Question 12
+
+Nested Transaction Illusion
+
+Question:
+
+- Use SAVEPOINT to simulate nesting.
+- Prove it's not true nesting.
+- Can outer rollback preserve inner SAVEPOINTs?
+
+Question 13
+
+Transaction Isolation Violation Puzzle
+
+Two REPEATABLE READ sessions see inconsistent data.
+
+Question:
+
+- Write a minimal example showing read skew.
+- Why SERIALIZABLE is needed?
+- Role of predicate locks?
+
+Question 14
+
+Serializable Isolation Conflict Detection
+
+In PostgreSQL SERIALIZABLE:
+- Two long-running transactions read overlapping rows.
+- Write non-overlapping rows based on those reads.
+
+Question:
+
+- Why might PostgreSQL abort one of them?
+- How does DEFERRABLE help reduce conflicts?
+
+Question 15
+
+Hidden Locking Behavior
+
+You run:
+BEGIN;
+SELECT * FROM products WHERE price > 100 FOR SHARE;
+-- update product prices
+COMMIT;
+
+Question:
+- Difference between FOR SHARE, FOR UPDATE, FOR NO KEY UPDATE?
+- Can SELECT cause deadlock?
+- Simulate this in multi-session.
+
+Question 16
+
+Design a transaction that appears ACID compliant but fails under high concurrency.
+- Prove it with READ COMMITTED.
+- Propose a fix using better isolation or logic.
+
